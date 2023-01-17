@@ -1,0 +1,228 @@
+{
+    "description": "This jobs tests the Antman project",
+    "enable-coding-style": true,
+    "enable-coverage": true,
+    "setup-commands": [
+        "make -C project-data/libraries"
+    ],
+    "build-commands": [
+        "make re"
+    ],
+    "skills": [
+        {
+            "name": "Error handling",
+            "tests": [
+                {
+                    "name": "No argument",
+                    "command": "python3 project-data/error_handling.py",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                },
+                {
+                    "name": "One argument",
+                    "command": "python3 project-data/error_handling.py project-data/files/lyrics/nw.lyr",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                },
+                {
+                    "name": "Too much arguments",
+                    "command": "python3 project-data/error_handling.py project-data/files/lyrics/nw.lyr 1 another_one",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                },
+                {
+                    "name": "Folder as input",
+                    "command": "python3 project-data/error_handling.py project-data 1",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                },
+                {
+                    "name": "Unknown file as input",
+                    "command": "python3 project-data/error_handling.py unknown.lyr 1",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                }
+            ]
+        },
+        {
+            "name": "Return checks",
+            "tests": [
+                {
+                    "name": "malloc()",
+                    "command": "project-data/libloader.sh malloc",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                },
+                {
+                    "name": "open()",
+                    "command": "project-data/libloader.sh open",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                },
+                {
+                    "name": "read()",
+                    "command": "project-data/libloader.sh read",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                },
+                {
+                    "name": "stat()",
+                    "command": "project-data/libloader.sh stat",
+                    "expected": "Antman exited with code 84\nGiantman exited with code 84\n"
+                }
+            ]
+        },
+        {
+            "name": "Compression/Decompression - Lyrics",
+            "tests": [
+                {
+                    "name": "Nightwish - Taikatalvi (nw.lyr)",
+                    "command": "python3 project-data/compression.py project-data/files/lyrics/nw.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rick Astley - Never Gonna Give You Up (ng.lyr)",
+                    "command": "python3 project-data/compression.py project-data/files/lyrics/ng.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Ricky Reed - Good Vibrations (ej.lyr)",
+                    "command": "python3 project-data/compression.py project-data/files/lyrics/ej.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Meat Loaf - If I Can't Have You (ml.lyr)",
+                    "command": "python3 project-data/compression.py project-data/files/lyrics/ml.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rihanna - Work (wk.lyr)",
+                    "command": "python3 project-data/compression.py project-data/files/lyrics/wk.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Eminem - Rap God (rg.lyr)",
+                    "command": "python3 project-data/compression.py project-data/files/lyrics/rg.lyr 1",
+                    "expected": "OK\n"
+                }
+            ]
+        },
+        {
+            "name": "Compression ratio - Lyrics",
+            "tests": [
+                {
+                    "name": "Nightwish - Taikatalvi (nw.lyr) - 10% compression",
+                    "command": "python3 project-data/ratio.py 10 project-data/files/lyrics/nw.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Nightwish - Taikatalvi (nw.lyr) - 25% compression",
+                    "command": "python3 project-data/ratio.py 25 project-data/files/lyrics/nw.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Nightwish - Taikatalvi (nw.lyr) - 50% compression",
+                    "command": "python3 project-data/ratio.py 50 project-data/files/lyrics/nw.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Nightwish - Taikatalvi (nw.lyr) - 75% compression",
+                    "command": "python3 project-data/ratio.py 75 project-data/files/lyrics/nw.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rick Astley - Never Gonna Give You Up (ng.lyr) - 10% compression",
+                    "command": "python3 project-data/ratio.py 10 project-data/files/lyrics/ng.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rick Astley - Never Gonna Give You Up (ng.lyr) - 25% compression",
+                    "command": "python3 project-data/ratio.py 25 project-data/files/lyrics/ng.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rick Astley - Never Gonna Give You Up (ng.lyr) - 50% compression",
+                    "command": "python3 project-data/ratio.py 50 project-data/files/lyrics/ng.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rick Astley - Never Gonna Give You Up (ng.lyr) - 75% compression",
+                    "command": "python3 project-data/ratio.py 75 project-data/files/lyrics/ng.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Ricky Reed - Good Vibrations (ej.lyr) - 10% compression",
+                    "command": "python3 project-data/ratio.py 10 project-data/files/lyrics/ej.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Ricky Reed - Good Vibrations (ej.lyr) - 25% compression",
+                    "command": "python3 project-data/ratio.py 25 project-data/files/lyrics/ej.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Ricky Reed - Good Vibrations (ej.lyr) - 50% compression",
+                    "command": "python3 project-data/ratio.py 50 project-data/files/lyrics/ej.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Ricky Reed - Good Vibrations (ej.lyr) - 75% compression",
+                    "command": "python3 project-data/ratio.py 75 project-data/files/lyrics/ej.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Meat Loaf - If I Can't Have You (ml.lyr) - 10% compression",
+                    "command": "python3 project-data/ratio.py 10 project-data/files/lyrics/ml.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Meat Loaf - If I Can't Have You (ml.lyr) - 25% compression",
+                    "command": "python3 project-data/ratio.py 25 project-data/files/lyrics/ml.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Meat Loaf - If I Can't Have You (ml.lyr) - 50% compression",
+                    "command": "python3 project-data/ratio.py 50 project-data/files/lyrics/ml.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Meat Loaf - If I Can't Have You (ml.lyr) - 75% compression",
+                    "command": "python3 project-data/ratio.py 75 project-data/files/lyrics/ml.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rihanna - Work (wk.lyr) - 10% compression",
+                    "command": "python3 project-data/ratio.py 10 project-data/files/lyrics/wk.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rihanna - Work (wk.lyr) - 25% compression",
+                    "command": "python3 project-data/ratio.py 25 project-data/files/lyrics/wk.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rihanna - Work (wk.lyr) - 50% compression",
+                    "command": "python3 project-data/ratio.py 50 project-data/files/lyrics/wk.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Rihanna - Work (wk.lyr) - 75% compression",
+                    "command": "python3 project-data/ratio.py 75 project-data/files/lyrics/wk.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Eminem - Rap God (rg.lyr) - 10% compression",
+                    "command": "python3 project-data/ratio.py 10 project-data/files/lyrics/rg.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Eminem - Rap God (rg.lyr) - 25% compression",
+                    "command": "python3 project-data/ratio.py 25 project-data/files/lyrics/rg.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Eminem - Rap God (rg.lyr) - 50% compression",
+                    "command": "python3 project-data/ratio.py 50 project-data/files/lyrics/rg.lyr 1",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "Eminem - Rap God (rg.lyr) - 75% compression",
+                    "command": "python3 project-data/ratio.py 75 project-data/files/lyrics/rg.lyr 1",
+                    "expected": "OK\n"
+                }
+            ]
+        }
+    ]
+}

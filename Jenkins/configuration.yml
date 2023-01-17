@@ -1,0 +1,24 @@
+jenkins:
+  systemMessage: "Hello ! Welcome to the SharedMarvin !"
+  labelAtoms:
+  - name: "Slave"
+  numExecutors: ${NB_SLAVES}
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: ${USER_ID}
+          name: ${USER_NAME}
+          password: ${USER_PASSWORD}
+  scmCheckoutRetryCount: 0
+  mode: NORMAL
+
+unclassified:
+  location:
+    url: ${URL}
+
+jobs:
+  - file: "/var/jenkins_home/jobs.groovy"

@@ -1,0 +1,56 @@
+{
+    "description": "This job checks Makefile for C projects.",
+    "enable-coding-style": true,
+    "enable-coverage": true,
+    "build-commands": [
+        "make"
+    ],
+    "setup-commands": [],
+    "skills": [
+        {
+            "name": "Compilation & dependencies",
+            "tests": [
+                {
+                    "name": "make (compilation)",
+                    "command": "python3 project-data/c_make.py --compile",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "two make in a row (dependencies)",
+                    "command": "python3 project-data/c_make.py --dependencies",
+                    "expected": "OK\n"
+                }
+            ]
+        },
+        {
+            "name": "Rules",
+            "tests": [
+                {
+                    "name": "all",
+                    "command": "python3 project-data/c_make.py --rule=all",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "clean",
+                    "command": "python3 project-data/c_make.py --rule=clean",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "fclean",
+                    "command": "python3 project-data/c_make.py --rule=fclean",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "re",
+                    "command": "python3 project-data/c_make.py --rule=re",
+                    "expected": "OK\n"
+                },
+                {
+                    "name": "tests_run",
+                    "command": "python3 project-data/c_make.py --rule=tests_run",
+                    "expected": "OK\n"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,155 @@
+
+<div class="row" *ngIf="!loading">
+  <div class="col-lg-6">
+    <div id="response"></div>
+    <div class="card mb-3 mb-lg-0">
+      <div class="card-body">
+        <form [formGroup]="triggerForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label for="moduleSelect" class="form-label">Module</label>
+            <select class="form-select" id="moduleSelect" formControlName="module" (change)="changeModule($event)">
+              <option *ngFor="let module of data.modules" [value]="module.name">
+                {{module.name}}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="projectSelect" class="form-label">Project</label>
+            <select class="form-select" id="projectSelect" formControlName="project">
+              <option *ngFor="let project of currentProjects()" [value]="project">
+                {{project}}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="file" class="form-label">Source code (as .zip)</label>
+            <input type="file" class="form-control" id="file" formControlName="file" accept=".zip" (change)="onFileChange($event)">
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="data.whoami.nextTrigger || triggerForm.invalid || triggerForm.disabled">{{ data.whoami.nextTrigger ? nextTrigger() : 'Trigger'}}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        Documentation
+      </div>
+      <div class="card-body">
+        <ul class="nav nav-tabs" id="triggerTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="apikey-tab" data-bs-toggle="tab" data-bs-target="#apikey" type="button" role="tab" aria-controls="apikey" aria-selected="true">API Key</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="curl-tab" data-bs-toggle="tab" data-bs-target="#curl" type="button" role="tab" aria-controls="curl" aria-selected="false">cURL</button>
+        </ul>
+        <div class="tab-content" id="triggerTabContent">
+          <div class="tab-pane fade show active" id="apikey" role="tabpanel" aria-labelledby="apikey-tab">
+            <div class="row mt-3 mb-2">
+              <div class="col-lg-6">
+                <input class="form-control mb-3 mb-lg-0" type="text" value="{{ data.whoami.key }}" aria-label="your API key" disabled>
+              </div>
+              <div class="col-lg-6 d-grid gap-2">
+                <button type="button" class="btn btn-primary" aria-label="copy your API key" (click)="copyKey()">Copy</button>
+                <button type="button" class="btn btn-danger" aria-label="copy your API key" (click)="resetKey()">Reset</button>
+              </div>
+            </div>
+            <p>
+              Here, you are on the interface. There is a <code>Bridge</code> between Jenkins and here.<br />
+              Click on a route to see how to use it.
+            </p>
+            <div class="accordion" id="accordionRoutes">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading-trigger">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-trigger"
+                    aria-expanded="true" aria-controls="collapse-trigger">
+                    <code>POST {{ data.bridgeUrl }}/trigger</code>
+                  </button>
+                </h2>
+                <div id="collapse-trigger" class="accordion-collapse collapse" aria-labelledby="heading-trigger"
+                  data-bs-parent="#accordionRoutes">
+                  <div class="accordion-body">
+                    <p>
+                      You MUST provide the following data in the request:
+                    </p>
+                    <ul>
+                      <li><code>module</code>: (string), containing the module name</li>
+                      <li><code>project</code>: (string), containing the project name</li>
+                      <li><code>source</code>: (file), <code>.zip</code> file containing your project source code</li>
+                    </ul>
+                    <p>
+                      You have to set the <code>X-Marvin-Authorization</code> header with your API key.<br />
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="curl" role="tabpanel" aria-labelledby="curl-tab">
+            <p class="mt-3">
+              This script must be placed at the root of your project.<br />
+              It will zip your project and send it to Marvin to trigger a build.<br />
+              But before using it, you'll add your API Key in an variable in your <code>~/.bashrc</code> or your custom terminal configuration file :
+            </p>
+            <pre><code class="language-bash">export MARVIN_KEY="{{ data.whoami.key }}"</code></pre>
+            <p>
+              This is useful when you work in a team project, so you can share the script without sharing the key.
+            </p>
+            <div class="alert alert-warning" role="alert">
+              Only the <code>module</code> and <code>project</code> variables should to be changed.
+            </div>
+            <pre class="mb-0"><code class="language-bash">#!/bin/bash
+
+# Configuration
+module="{{ triggerForm.get('module')?.value ? triggerForm.get('module')?.value : 'X-XXX-000' }}"
+project="{{ triggerForm.get('project')?.value ? triggerForm.get('project')?.value : 'XXX' }}"
+apiKey=$MARVIN_KEY
+marvinUrl="{{ data.bridgeUrl }}"
+
+# Binaries
+curl=$(which curl)
+zip=$(which zip)
+rm=$(which rm)
+echo=$(which echo)
+cat=$(which cat)
+
+# Archive the project
+echo "Archiving project..."
+$zip -r marvin.zip * 1> /dev/null
+status=$?
+if [ $status -ne 0 ]; then
+    $echo "Error: unable to create the archive of the project"
+    exit 1
+fi
+echo "Done"
+
+# Send project to Marvin
+echo "Sending project to Marvin..."
+response=$($curl -w "%&#123;http_code&#125;" -o marvin-response.txt \
+-H "X-Marvin-Authorization: $apiKey" -X POST  \
+-F "module=$module" -F "project=$project" -F "file=@marvin.zip" \
+$marvinUrl/trigger)
+$rm marvin.zip
+if [ $response -ne 200 ]; then
+    $echo -n "Error: " && $cat marvin-response.txt && $echo ""
+    $rm -f marvin-response.txt
+    exit 1
+fi
+$echo "Success: Your project has been sent to Marvin."
+$rm -f marvin-response.txt</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="spinner-container d-flex justify-content-center" *ngIf="loading">
+  <div class="spinner-border text-dark" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>

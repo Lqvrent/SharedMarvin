@@ -1,0 +1,12 @@
+configuration-as-code:latest
+cloudbees-folder:latest
+github:latest
+groovy:latest
+credentials:latest
+job-dsl:latest
+structs:latest
+role-strategy:latest
+ws-cleanup:latest
+permissive-script-security:latest
+docker-workflow:latest
+code-coverage-api:latest

@@ -1,0 +1,89 @@
+<div class="alert alert-danger" role="alert" *ngIf="!module || !project">
+  <h4 class="alert-heading">Error</h4>
+  <p>Bad module or project passed as parameter.</p>
+  <hr>
+  <p class="mb-0">Please check the URL.</p>
+</div>
+
+<div class="alert alert-primary" role="alert" *ngIf="module && project && !loading">
+  <div class="row text-center text-md-start">
+    <div class="col-12 col-md-6">
+      <h4 class="alert-heading float-md-start">{{ module }} - {{ project }}</h4>
+    </div>
+    <div class="col-12 col-md-6">
+      <button type="button" class="btn btn-primary float-md-end" (click)="refresh()">Refresh</button>
+    </div>
+  </div>
+  <p class="mb-0 text-center text-md-start">
+    {{ data.project_description ? data.project_description : 'No description found for this project.'}}<br />
+    {{ data.builds.length ? 'You have ' + data.builds.length + ' builds on this project.' : 'No builds found for this project.'}}
+  </p>
+</div>
+
+<div class="row" *ngIf="module && project && !loading && data.builds.length > 0">
+  <div class="col-xl-6" *ngFor="let build of data.builds">
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="float-start">
+          #{{ build.build_number }}
+        </div>
+        <div class="float-end">
+          {{ build.build_start_time | date:'dd/MM/yyyy HH:mm' }}
+        </div>
+      </div>
+      <div class="card-body">
+        <h6 class="text-center" [class.text-primary]="!build.build_summary.bad_status.length" [class.text-danger]="build.build_summary.bad_status.length">
+          {{ !build.build_summary.bad_status.length ? 'Prerequisites met' : build.build_summary.bad_status.join(', ') }}
+        </h6>
+        <div class="progress mb-3">
+          <div class="progress-bar" [class.bg-danger]="build.build_summary.tests_passed < 25" [class.bg-warning]="build.build_summary.tests_passed >= 25 && build.build_summary.tests_passed < 75"  [class.bg-success]="build.build_summary.tests_passed >= 75" role="progressbar" [style.width]="build.build_summary.tests_passed + '%'" [attr.aria-valuenow]="build.build_summary.tests_passed" aria-valuemin="0" aria-valuemax="100">
+            {{ build.build_summary.tests_passed}}%
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-center">Coding style</h6>
+            <table style="width: 100%;">
+              <tr>
+                <td>Major</td>
+                <td class="text-end">{{ build.build_summary.style_major }}</td>
+              </tr>
+              <tr>
+                <td>Minor</td>
+                <td class="text-end">{{ build.build_summary.style_minor }}</td>
+              </tr>
+              <tr>
+                <td>Info</td>
+                <td class="text-end">{{ build.build_summary.style_info }}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6 text-center">
+            <h6>Coverage lines</h6>
+            <div class="progress mb-3">
+              <div class="progress-bar" [class.bg-danger]="build.build_summary.cov_lines < 25" [class.bg-warning]="build.build_summary.cov_lines >= 25 && build.build_summary.cov_lines < 75"  [class.bg-success]="build.build_summary.cov_lines >= 75" role="progressbar" [style.width]="build.build_summary.cov_lines + '%'" [attr.aria-valuenow]="build.build_summary.cov_lines" aria-valuemin="0" aria-valuemax="100">
+                  {{ build.build_summary.cov_lines}}%
+              </div>
+            </div>
+            <h6>Coverage branches</h6>
+            <div class="progress">
+              <div class="progress-bar" [class.bg-danger]="build.build_summary.cov_branches < 25" [class.bg-warning]="build.build_summary.cov_branches >= 25 && build.build_summary.cov_branches < 75"  [class.bg-success]="build.build_summary.cov_branches >= 75" role="progressbar" [style.width]="build.build_summary.cov_branches + '%'" [attr.aria-valuenow]="build.build_summary.cov_branches" aria-valuemin="0" aria-valuemax="100">
+                  {{ build.build_summary.cov_branches}}%
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer text-center">
+        <button [routerLink]="['/view']" [queryParams]="{module: module, project: project, build: build.build_number}" type="button" class="btn btn-primary">Details</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="spinner-container d-flex justify-content-center" *ngIf="loading">
+  <div class="spinner-border text-dark" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>

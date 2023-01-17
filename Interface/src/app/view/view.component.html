@@ -1,0 +1,144 @@
+<div class="alert alert-danger" role="alert" *ngIf="!module || !project || !build">
+  <h4 class="alert-heading">Error</h4>
+  <p>Bad module, project or build passed as parameter.</p>
+  <hr>
+  <p class="mb-0">Please check the URL.</p>
+</div>
+
+<div class="alert alert-primary" role="alert" *ngIf="module && project && build && !loading">
+  <div class="row text-center text-md-start">
+    <h4 class="alert-heading">{{ module }} - {{ project }}</h4>
+  </div>
+  <p class="mb-0 text-center text-md-start">
+    {{ data.project_description ? data.project_description : 'No description found for this project.'}}<br />
+  </p>
+</div>
+
+<div class="card mb-4" *ngIf="module && project && build && !loading">
+  <div class="card-header">
+    <div class="float-start">
+      #{{ build }}
+    </div>
+    <div class="float-end">
+      {{ data.build_start_time| date:'dd/MM/yyyy HH:mm' }}
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-6">
+        <h6 class="text-center" [class.text-primary]="!data.summary.bad_status.length"
+          [class.text-danger]="data.summary.bad_status.length">
+          {{ !data.summary.bad_status.length ? 'Prerequisites met' : data.summary.bad_status.join(', ') }}
+        </h6>
+        <div class="progress mb-3">
+          <div class="progress-bar" [class.bg-danger]="data.summary.tests_passed < 25" [class.bg-warning]="data.summary.tests_passed >= 25 && data.summary.tests_passed < 75"  [class.bg-success]="data.summary.tests_passed >= 75" role="progressbar" [style.width]="data.summary.tests_passed + '%'" [attr.aria-valuenow]="data.summary.tests_passed" aria-valuemin="0" aria-valuemax="100">
+            {{ data.summary.tests_passed}}%
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-center">Coding style</h6>
+            <table style="width: 100%;">
+              <tr>
+                <td>Major</td>
+                <td class="text-end">{{ data.summary.style_major }}</td>
+              </tr>
+              <tr>
+                <td>Minor</td>
+                <td class="text-end">{{ data.summary.style_minor }}</td>
+              </tr>
+              <tr>
+                <td>Info</td>
+                <td class="text-end">{{ data.summary.style_info }}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6 text-center">
+            <h6>Coverage lines</h6>
+            <div class="progress mb-3">
+              <div class="progress-bar" [class.bg-danger]="data.summary.cov_lines < 25" [class.bg-warning]="data.summary.cov_lines >= 25 && data.summary.cov_lines < 75"  [class.bg-success]="data.summary.cov_lines >= 75" role="progressbar" [style.width]="data.summary.cov_lines + '%'" [attr.aria-valuenow]="data.summary.cov_lines" aria-valuemin="0" aria-valuemax="100">
+                  {{ data.summary.cov_lines}}%
+              </div>
+            </div>
+            <h6>Coverage branches</h6>
+            <div class="progress mb-3">
+              <div class="progress-bar" [class.bg-danger]="data.summary.cov_branches < 25" [class.bg-warning]="data.summary.cov_branches >= 25 && data.summary.cov_branches < 75"  [class.bg-success]="data.summary.cov_branches >= 75" role="progressbar" [style.width]="data.summary.cov_branches + '%'" [attr.aria-valuenow]="data.summary.cov_branches" aria-valuemin="0" aria-valuemax="100">
+                  {{ data.summary.cov_branches}}%
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <ul class="nav nav-tabs" id="tabs-infos" role="tablist" *ngIf="tabs.length">
+          <li class="nav-item" role="presentation" *ngFor="let tab of tabs; let i = index">
+            <button class="nav-link" [class.active]="i == 0" id="tab-{{ i }}" data-bs-toggle="tab" [attr.data-bs-target]="'#tab-content-' + i" type="button" role="tab" [attr.aria-controls]="'tab-content-' + i" [attr.aria-selected]=" i == 0 ? 'true' : ''">{{ tab.name }}</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="tabs-infos-content">
+          <div *ngFor="let tab of tabs; let i = index" class="tab-pane fade" [class.show]="i == 0" [class.active]="i == 0" id="tab-content-{{ i }}" role="tabpanel" [attr.aria-labelledby]="'tab-' + i">
+            <pre class="pt-2 mb-0"><code class="language-bash" [innerHTML]="tab.content"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4" [style.display]="module && project && build && !loading ? '' : 'none'" *ngFor="let skill of data.skills; let i = index">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-4">
+        <h6 class="text-center">{{ skill.name }}</h6>
+        <div class="progress mb-2">
+          <div class="progress-bar" [class.bg-danger]="skill.passed / skill.total * 100 < 25" [class.bg-warning]="skill.passed / skill.total * 100 >= 25 && skill.passed / skill.total * 100 < 75"  [class.bg-success]="skill.passed / skill.total * 100 >= 75" role="progressbar" [style.width]="skill.passed / skill.total * 100 + '%'" [attr.aria-valuenow]="skill.passed / skill.total * 100" aria-valuemin="0" aria-valuemax="100">
+            {{ skill.passed / skill.total * 100 | number:'1.0-0' }}%
+          </div>
+        </div>
+        <table style="width: 100%;">
+          <tr>
+            <td>Total</td>
+            <td class="text-end">{{ skill.total }}</td>
+          </tr>
+          <tr>
+            <td>Passed</td>
+            <td class="text-end">{{ skill.passed }}</td>
+          </tr>
+          <tr>
+            <td>Failed</td>
+            <td class="text-end">{{ skill.failed }}</td>
+          </tr>
+          <tr>
+            <td>Skipped</td>
+            <td class="text-end">{{ skill.skipped }}</td>
+        </table>
+        <hr class="d-block d-lg-none">
+      </div>
+      <div class="col-lg-8">
+        <div class="accordion" [id]="'accordion-' + i">
+          <div class="accordion-item" *ngFor="let test of skill.tests; let i2 = index">
+            <h2 class="accordion-header" [id]="'heading-' + i + '-' + i2">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse-' + i + '-' + i2" aria-expanded="false" [attr.aria-controls]="'collapse-' + i + '-' + i2">
+                <span class="badge bg-success me-2" *ngIf="test.status === 'PASSED'">PASSED</span>
+                <span class="badge bg-danger me-2" *ngIf="test.status === 'FAILED'">FAILED</span>
+                <span class="badge bg-warning me-2" *ngIf="test.status === 'SKIPPED'">SKIPPED</span>
+                {{ test.name }}
+              </button>
+            </h2>
+            <div [id]="'collapse-' + i + '-' + i2" class="accordion-collapse collapse" [attr.aria-labelledby]="'heading-' + i + '-' + i2">
+              <div class="accordion-body">
+                <pre class="mb-0"><code class="language-bash">{{ test.message.trimRight() }}</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="spinner-container d-flex justify-content-center" *ngIf="loading">
+  <div class="spinner-border text-dark" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>

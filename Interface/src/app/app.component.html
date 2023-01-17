@@ -1,0 +1,55 @@
+<button (click)="toggleSidebar()" class="btn btn-secondary btn-sm d-block d-md-none" id="sidebar-toggler">
+  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+  </svg>
+</button>
+<main class="d-flex flex-nowrap">
+  <div class="flex-shrink-0 p-3 text-bg-dark" id="sidebar">
+    <a [routerLink]="['/']" class="d-flex align-items-center text-decoration-none text-white">
+      <img src="../assets/images/Logo.png" alt="Logo of SharedMarvin" class="bi pe-none me-2" width="30"/>
+      <span class="fs-5 fw-semibold">SharedMarvin</span>
+    </a>
+    <hr>
+    <ul class="list-unstyled ps-0">
+      <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed text-white" data-bs-toggle="collapse" data-bs-target="#me-collapse" aria-expanded="false">
+        Me
+      </button>
+      <div id="me-collapse" class="collapse">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li *ngIf="!loginDisplay"><a (click)="toggleSidebar()" href="#" class="d-inline-flex text-decoration-none rounded text-white" (click)="login()">Log in</a></li>
+          <li *ngIf="loginDisplay"><a (click)="toggleSidebar()" [routerLink]="['/build']" class="d-inline-flex text-decoration-none rounded text-white">Trigger build</a></li>
+          <li *ngIf="loginDisplay"><a (click)="toggleSidebar()" href="#" class="d-inline-flex text-decoration-none rounded text-white" (click)="logout()">Sign out</a></li>
+        </ul>
+      </div>
+    </ul>
+    <hr *ngIf="loginDisplay">
+    <div class="spinner-container d-flex justify-content-center spinner-sidebar" *ngIf="loginDisplay && loading">
+      <div class="spinner-border text-white" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <ul class="list-unstyled ps-0" *ngIf="loginDisplay && !loading && data.modules.length">
+      <li class="mb-1" *ngFor="let module of data.modules">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed text-white" data-bs-toggle="collapse" [attr.data-bs-target]="'#' + module.name + '-collapse'" aria-expanded="false">
+          {{ module.name }}
+        </button>
+        <div [id]="module.name + '-collapse'" class="collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" *ngFor="let project of module.projects">
+            <li>
+              <a (click)="toggleSidebar()" [routerLink]="['/my']" [queryParams]="{module: module.name, project: project.name}" class="d-inline-flex text-decoration-none rounded text-white" [title]="project.name + ': ' + project.description">
+                {{ project.name }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+    <p *ngIf="loginDisplay && !loading && !data.modules.length">
+      No modules and projects.<br />
+      Want to open PRs ? ;)
+    </p>
+  </div>
+  <div id="marvin-content" class="flex-grow-1 p-3 bg-light">
+    <router-outlet></router-outlet>
+  </div>
+</main>

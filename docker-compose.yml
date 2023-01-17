@@ -1,0 +1,118 @@
+version: '3.7'
+services:
+  Jenkins:
+    build:
+      context: Jenkins
+    image: sharedmarvin-jenkins
+    container_name: "Jenkins"
+    ports:
+      - "8080:8080"
+      # - "50000:50000"
+    volumes:
+      - "/var/jenkins_home/:/var/jenkins_home/"
+      - "sources:/var/sources/"
+      - "./Jobs:/var/jenkins_home/jobs_templates"
+      - "./Marvin:/var/marvin"
+      - "${DOCKER_SOCK}:/var/run/docker.sock"
+      - "./Jenkins/configuration.yml:/var/jenkins_home/casc_configuration.yml"
+      - "./Jenkins/jobs.groovy:/var/jenkins_home/jobs.groovy"
+      - "./Jenkins/refresh.groovy:/var/jenkins_home/init.groovy.d/refresh.groovy"
+      - "./Jenkins/plugins.txt:/usr/share/jenkins/ref/plugins.txt"
+    environment:
+      - USER_ID=${JENKINS_USER_ID}
+      - USER_NAME=${JENKINS_USER_NAME}
+      - USER_PASSWORD=${JENKINS_USER_PASSWORD}
+      - NB_SLAVES=${JENKINS_NB_SLAVES}
+      - URL=${JENKINS_URL}
+    networks:
+      - backend
+    restart: always
+
+  Database:
+    build:
+      context: Database
+    image: sharedmarvin-database
+    container_name: Database
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - database:/var/lib/postgresql/data
+    networks:
+      - backend
+    depends_on:
+      - Jenkins
+    # ports:
+    #   - 5432:5432
+    restart: always
+
+  Interface:
+    build:
+      context: Interface
+    image: sharedmarvin-interface
+    container_name: "Interface"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - Bridge
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - "${SSL_CERTIFICATE}:/etc/letsencrypt/live/interface/fullchain.pem"
+      - "${SSL_KEY}:/etc/letsencrypt/live/interface/privkey.pem"
+    restart: always
+
+  Bridge:
+    build:
+      context: Bridge
+    image: sharedmarvin-bridge
+    container_name: "Bridge"
+    environment:
+      PGHOST: Database
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: postgres
+      PGPORT: 5432
+      JENKINS_USER: ${JENKINS_USER_ID}
+      JENKINS_TOKEN: ${JENKINS_API_TOKEN}
+      JENKINS_HOST: Jenkins
+      WAITING_TIME: ${WAITING_TIME}
+      ADMINISTRATORS: ${ADMINISTRATORS}
+    volumes:
+      - "sources:/usr/src/app/sources"
+      - "./Jobs:/usr/src/app/jobs/"
+    depends_on:
+      - Database
+    networks:
+      - backend
+      - bridge-proxy
+    restart: always
+
+  Proxy:
+    build:
+      context: Proxy
+    image: sharedmarvin-proxy
+    container_name: "Bridge-Proxy"
+    ports:
+      - "3000:3000"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - "${SSL_CERTIFICATE}:/etc/letsencrypt/live/interface/fullchain.pem"
+      - "${SSL_KEY}:/etc/letsencrypt/live/interface/privkey.pem"
+    depends_on:
+      - Bridge
+    networks:
+      - bridge-proxy
+    restart: always
+
+volumes:
+  database: {}
+  sources: {}
+
+networks:
+  backend:
+    driver: bridge
+  bridge-proxy:
+    driver: bridge
