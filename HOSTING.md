@@ -1,11 +1,45 @@
 # Welcome to the hosting guide for the SharedMarvin project
-## Prerequisites 📋
+## 📋 Prerequisites
 First of all, you need Docker and Docker Compose installed on your machine. You can find the installation guide [here](https://docs.docker.com/compose/install/).
-###### TODO: Generate SSL certificates
-###### TODO: Azure app registration
-###### TODO: First launch with Jenkins (for the API key)
+**Note**: all resources here are for development purposes only, and should not be used in production.
 
-## Configuration ⚙️
+### 📜 SSL certificate
+In order to use the HTTPS protocol, we will generate a self-signed certificate (for localhost), for production please use a real certificate.<br />
+First, install openssl:
+```bash
+sudo apt update
+sudo apt install openssl
+```
+Or for MacOS:
+```bash
+brew install openssl
+```
+Then, generate the certificate:
+```bash
+openssl req -new -x509 -key privkey.pem -out fullchain.pem -days 365 -subj /CN=localhost
+```
+Keep those files, we will need them for the configuration later (or fill directly the `.env` file).
+
+### 📝 Azure registration
+Now, we'll register our application to Azure, to do so, you will need to create an Azure account (or connect with your Epitech account).<br />
+Then, go to the [Azure portal](https://portal.azure.com/#home), go to the `Azure Active Directory` section, and click on `App registrations`.<br />
+Then, click on `New registration`, and fill the form with the following values:
+| Field | Value |
+| --- | --- |
+| `Name` | `SharedMarvin` |
+| `Supported account types` | `Accounts in this organizational directory only` |
+| `Redirect URI` | `http://localhost:80` |
+Confirm the registration, and copy the `Application (client) ID` and the `Directory (tenant) ID`, we will need them later (or fill directly the `.env` file).
+
+### 🔌 First launch of Jenkins
+Now, configure the project except the `JENKINS_API_TOKEN` variable in the `.env` file, and run the project with Docker Compose:
+```bash
+docker-compose up
+```
+Then, go to `http://localhost:8080`, connect with your user, go in your user settings (``http://localhost:8080/me/configure`) and generate a new API Token, and paste it in the `.env` file.
+You're done ! You can now host SharedMarvin on your own machine.
+
+## ⚙️ Configuration
 Then, after cloning the project, you will need to create a `.env` file, that can be copied from the `.env.example` file.
 ```bash
 cp .env.example .env
