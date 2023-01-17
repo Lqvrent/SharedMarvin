@@ -36,7 +36,7 @@ Now, configure the project except the `JENKINS_API_TOKEN` variable in the `.env`
 ```bash
 docker-compose up
 ```
-Then, go to `http://localhost:8080`, connect with your user, go in your user settings (``http://localhost:8080/me/configure`) and generate a new API Token, and paste it in the `.env` file.
+Then, go to `http://localhost:8080`, connect with your user, go in your user settings (`http://localhost:8080/me/configure`) and generate a new API Token, and paste it in the `.env` file.
 You're done ! You can now host SharedMarvin on your own machine.
 
 ## ⚙️ Configuration
