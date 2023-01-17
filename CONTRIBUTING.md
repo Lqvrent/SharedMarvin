@@ -79,3 +79,10 @@ Per exemple, if you want to create a `mouli.sh` that takes the argument `42`, an
 }
 ```
 You're now ready to write your own tests !<br />
+
+## 📝 Commit messages guidelines
+To keep a clean commit history, we ask you to follow the following guidelines:
+- Must be in english
+- Must be in lowercase
+- Must be in imperative mood
+- Must follow https://commitlint.io/, you can use it to generate your commit messages
