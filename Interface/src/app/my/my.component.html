@@ -20,6 +20,27 @@
   </p>
 </div>
 
+<div class="card mb-4" *ngIf="module && project && !loading && data.builds.length > 1">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-6 mb-3 mb-lg-0">
+        <h6>Tests passed</h6>
+        <canvas baseChart [type]="'line'" height="35px" width="100%"
+        [data]="chartTests"
+        [options]="chartsOptions"
+        [legend]="false"></canvas>
+      </div>
+      <div class="col-lg-6">
+        <h6>Coverage</h6>
+        <canvas baseChart [type]="'line'" height="35px" width="100%"
+        [data]="chartCoverage"
+        [options]="chartsOptions"
+        [legend]="true"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row" *ngIf="module && project && !loading && data.builds.length > 0">
   <div class="col-xl-6" *ngFor="let build of data.builds">
     <div class="card mb-4">

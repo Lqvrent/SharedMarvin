@@ -129,7 +129,7 @@ echo "Done"
 
 # Send project to Marvin
 echo "Sending project to Marvin..."
-response=$($curl -w "%&#123;http_code&#125;" -o marvin-response.txt \
+response=$($curl {{ data.bridgeUrl.includes("localhost") ? "-k" : "" }} -w "%&#123;http_code&#125;" -o marvin-response.txt \
 -H "X-Marvin-Authorization: $apiKey" -X POST  \
 -F "module=$module" -F "project=$project" -F "file=@marvin.zip" \
 $marvinUrl/trigger)

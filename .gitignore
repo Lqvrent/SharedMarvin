@@ -27,3 +27,7 @@ Temporary Items
 
 # Environment
 .env
+
+# SSL keys
+*.key
+*.pem

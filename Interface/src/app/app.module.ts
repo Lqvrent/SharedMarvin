@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
+import { NgChartsModule } from 'ng2-charts';
 
 import { AppRoutingModule } from './app-routing.module';
 import { environment } from '../environments/environment';
@@ -28,6 +29,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE ') > -1 || window.navigato
   ],
   imports: [
     BrowserModule,
+    NgChartsModule,
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,

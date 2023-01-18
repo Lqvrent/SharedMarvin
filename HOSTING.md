@@ -16,7 +16,7 @@ brew install openssl
 ```
 Then, generate the certificate:
 ```bash
-openssl req -new -x509 -key privkey.pem -out fullchain.pem -days 365 -subj /CN=localhost
+openssl req -x509 -newkey rsa:4096 -keyout privkey.pem -out fullchain.pem -days 365 -nodes -subj "/CN=localhost"
 ```
 Keep those files, we will need them for the configuration later (or fill directly the `.env` file).
 
