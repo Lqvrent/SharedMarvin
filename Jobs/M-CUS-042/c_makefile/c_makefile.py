@@ -1,6 +1,6 @@
 # --usage: print usage
 def usage():
-    print('Usage: python3 project-data/c_make.py --compile|--dependencies|--rule=[rule_name]')
+    print('Usage: python3 project-data/c_makefile.py --compile|--dependencies|--rule=[rule_name]')
     exit(1)
 
 # --compile: compile the project with make
