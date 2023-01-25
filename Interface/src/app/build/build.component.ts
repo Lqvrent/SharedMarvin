@@ -45,12 +45,34 @@ export class BuildComponent implements OnInit {
     if (this.loaded === 2) {
       this.triggerForm.enable()
       this.loading = false
-      const module = this.data.modules.find(module => module.name === localStorage.getItem("build_module"))
-      if (module) {
-        this.triggerForm.controls["module"].setValue(module.name)
-        const project = module.projects.find(project => project.name === localStorage.getItem("build_project"))
-        if (project)
-          this.triggerForm.controls["project"].setValue(project.name)
+      if (localStorage.getItem("build_module") && localStorage.getItem("build_project")) {
+        // Module & Project are stored in localStorage
+        const module = this.data.modules.find(module => module.name === localStorage.getItem("build_module"))
+        if (module) {
+          this.triggerForm.controls["module"].setValue(module.name)
+          const project = module.projects.find(project => project.name === localStorage.getItem("build_project"))
+          if (project)
+            this.triggerForm.controls["project"].setValue(project.name)
+          else {
+            if (module.projects.length > 0)
+              this.triggerForm.controls["project"].setValue(module.projects[0].name)
+          }
+        }
+        else {
+          if (this.data.modules.length > 0) {
+            this.triggerForm.controls["module"].setValue(this.data.modules[0].name)
+            if (this.data.modules[0].projects.length > 0)
+              this.triggerForm.controls["project"].setValue(this.data.modules[0].projects[0].name)
+          }
+        }
+      }
+      else {
+        // Module & Project are not stored in localStorage
+        if (this.data.modules.length > 0) {
+          this.triggerForm.controls["module"].setValue(this.data.modules[0].name)
+          if (this.data.modules[0].projects.length > 0)
+            this.triggerForm.controls["project"].setValue(this.data.modules[0].projects[0].name)
+        }
       }
     }
   }
@@ -78,11 +100,12 @@ export class BuildComponent implements OnInit {
           this.data.whoami = data.data
           localStorage.setItem("build_module", this.triggerForm.value.module)
           localStorage.setItem("build_project", this.triggerForm.value.project)
-          if (response)
+          if (response) {
             response.innerHTML = `<div class="alert alert-success alert-dismissible show" role="alert">
             <strong>Success!</strong> Your build has been triggered. You will have your result in a few minutes.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>`
+          }
         })
       }, (error: any) => {
         this.triggerForm.enable()
@@ -110,7 +133,8 @@ export class BuildComponent implements OnInit {
   }
 
   changeModule(event: Event): void {
-    this.triggerForm.controls["project"].setValue(null)
+    if (this.data.modules.length > 0 && this.data.modules[0].projects.length > 0)
+      this.triggerForm.controls["project"].setValue(this.data.modules[0].projects[0].name)
   }
 
   onFileChange(event: Event): void {
