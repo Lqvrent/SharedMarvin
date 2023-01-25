@@ -9,9 +9,16 @@ def run(original_file, compression_type):
     import subprocess
     import os
     # Compress file
-    process = subprocess.Popen("./antman/antman " + original_file + " " + compression_type + " > compressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate(timeout=30)
-    exit_code = process.wait()
+    try:
+        process = subprocess.Popen("./antman/antman " + original_file + " " + compression_type + " > compressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate(timeout=30)
+        exit_code = process.wait()
+    except subprocess.TimeoutExpired:
+        print("KO: Antman timed out")
+        exit(84)
+    except Exception as e:
+        print("KO: Antman failed with exception: " + str(e))
+        exit(84)
     # print("antman: " + output.decode('utf-8') + error.decode('utf-8'))
     switch = {
         127: "KO: Antman binary not found",
@@ -22,9 +29,16 @@ def run(original_file, compression_type):
         print(switch.get(exit_code, "KO: Antman exited with code %d" % exit_code))
         exit(84)
     # Uncompress file
-    process = subprocess.Popen("./giantman/giantman compressed.data " + compression_type + " > uncompressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate(timeout=30)
-    exit_code = process.wait()
+    try:
+        process = subprocess.Popen("./giantman/giantman compressed.data " + compression_type + " > uncompressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate(timeout=30)
+        exit_code = process.wait()
+    except subprocess.TimeoutExpired:
+        print("KO: Giantman timed out")
+        exit(84)
+    except Exception as e:
+        print("KO: Giantman failed with exception: " + str(e))
+        exit(84)
     # print("giantman: " + output.decode('utf-8') + error.decode('utf-8'))
     switch = {
         127: "KO: Giantman binary not found",
@@ -35,15 +49,29 @@ def run(original_file, compression_type):
         print(switch.get(exit_code, "KO: Giantman exited with code %d" % exit_code))
         exit(84)
     # Check if the uncompressed file is the same as the original
-    process = subprocess.Popen("diff " + original_file + " uncompressed.data > diff.comp", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate(timeout=10)
-    exit_code = process.wait()
+    try:
+        process = subprocess.Popen("diff " + original_file + " uncompressed.data > diff.comp", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate(timeout=10)
+        exit_code = process.wait()
+    except subprocess.TimeoutExpired:
+        print("KO: diff timed out")
+        exit(84)
+    except Exception as e:
+        print("KO: diff failed with exception: " + str(e))
+        exit(84)
     # print("diff: " + output.decode('utf-8') + error.decode('utf-8'))
     if exit_code != 0:
         print("KO: Uncompressed file is different from the original file")
-        process = subprocess.Popen("cat -e diff.comp", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = process.communicate(timeout=5)
-        exit_code = process.wait()
+        try:
+            process = subprocess.Popen("cat -e diff.comp", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, error = process.communicate(timeout=5)
+            exit_code = process.wait()
+        except subprocess.TimeoutExpired:
+            print("KO: cat timed out")
+            exit(84)
+        except Exception as e:
+            print("KO: cat failed with exception: " + str(e))
+            exit(84)
         # print("cat: " + output.decode('utf-8') + error.decode('utf-8'))
         print(output.decode('utf-8'))
         exit(84)

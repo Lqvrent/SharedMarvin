@@ -14,9 +14,18 @@ def building():
                 print("===> BUILD: Running command build '" + command + "'.")
                 print(command)
                 logs_file.write(command + '\n')
-                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                output, error = process.communicate(timeout=120)
-                exit_code = process.wait()
+                try:
+                    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                    output, error = process.communicate(timeout=120)
+                    exit_code = process.wait()
+                except subprocess.TimeoutExpired:
+                    print('===> BUILD: Command timed out.')
+                    logs_file.write('Timed out.\n')
+                    exit(1)
+                except Exception as e:
+                    print('===> BUILD: Command failed with exception: ' + str(e))
+                    logs_file.write('Failed with exception: ' + str(e) + '\n')
+                    exit(1)
                 print(output.decode('utf-8') + error.decode('utf-8'))
                 logs_file.write(output.decode('utf-8') + error.decode('utf-8'))
                 if exit_code != 0:
@@ -37,9 +46,16 @@ def setup():
         for command in data['setup-commands']:
             print("===> SETUP: Running command setup \"" + command + "\".")
             print(command)
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            output, error = process.communicate(timeout=120)
-            exit_code = process.wait()
+            try:
+                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                output, error = process.communicate(timeout=120)
+                exit_code = process.wait()
+            except subprocess.TimeoutExpired:
+                print('===> SETUP: Command timed out.')
+                exit(1)
+            except Exception as e:
+                print('===> SETUP: Command failed with exception: ' + str(e))
+                exit(1)
             print(output.decode('utf-8') + error.decode('utf-8'))
             if exit_code != 0:
                 print('===> SETUP: Command failed with exit code ' + str(exit_code) + '.')
@@ -60,9 +76,20 @@ def testing():
                 print("===> TESTING: Starting test '" + test["name"] + "'.")
                 print(test["command"])
                 results[skill["name"]][test["name"]] = dict()
-                process = subprocess.Popen(test["command"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                output, error = process.communicate(timeout=60)
-                exit_code = process.wait()
+                try:
+                    process = subprocess.Popen(test["command"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                    output, error = process.communicate(timeout=60)
+                    exit_code = process.wait()
+                except subprocess.TimeoutExpired:
+                    print('===> TESTING: Command timed out.')
+                    results[skill["name"]][test["name"]]['status'] = 'FAILED'
+                    results[skill["name"]][test["name"]]['message'] = 'Timed out after 60 seconds.'
+                    continue
+                except Exception as e:
+                    print('===> TESTING: Command failed with exception: ' + str(e))
+                    results[skill["name"]][test["name"]]['status'] = 'FAILED'
+                    results[skill["name"]][test["name"]]['message'] = 'Failed with exception: ' + str(e)
+                    continue
                 print(output.decode('utf-8'), error.decode('utf-8'))
                 results[skill["name"]][test["name"]]['status'] = 'PASSED' if output.decode('utf-8') == test["expected"] else 'FAILED'
                 if (output.decode('utf-8') != test["expected"]):

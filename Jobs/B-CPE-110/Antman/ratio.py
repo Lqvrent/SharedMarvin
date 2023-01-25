@@ -10,9 +10,16 @@ def run(wanted_ratio, original_file, compression_type):
     import subprocess
     import os
     # Compress file
-    process = subprocess.Popen("./antman/antman " + original_file + " " + compression_type + " > compressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate(timeout=30)
-    exit_code = process.wait()
+    try:
+        process = subprocess.Popen("./antman/antman " + original_file + " " + compression_type + " > compressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate(timeout=30)
+        exit_code = process.wait()
+    except subprocess.TimeoutExpired:
+        print("KO: Antman timed out")
+        exit(84)
+    except Exception as e:
+        print("KO: Antman failed with exception: " + str(e))
+        exit(84)
     # print("antman: " + output.decode('utf-8') + error.decode('utf-8'))
     switch = {
         127: "KO: Antman binary not found",
@@ -23,9 +30,16 @@ def run(wanted_ratio, original_file, compression_type):
         print(switch.get(exit_code, "KO: Antman exited with code %d" % exit_code))
         exit(84)
     # Decompress file
-    process = subprocess.Popen("./giantman/giantman compressed.data " + compression_type + " > decompressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate(timeout=30)
-    exit_code = process.wait()
+    try:
+        process = subprocess.Popen("./giantman/giantman compressed.data " + compression_type + " > decompressed.data", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate(timeout=30)
+        exit_code = process.wait()
+    except subprocess.TimeoutExpired:
+        print("KO: Giantman timed out")
+        exit(84)
+    except Exception as e:
+        print("KO: Giantman failed with exception: " + str(e))
+        exit(84)
     # print("giantman: " + output.decode('utf-8') + error.decode('utf-8'))
     switch = {
         127: "KO: Giantman binary not found",
