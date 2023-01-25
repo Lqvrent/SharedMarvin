@@ -29,6 +29,8 @@ Then, click on `New registration`, and fill the form with the following values:
 | `Name` | `SharedMarvin` |
 | `Supported account types` | `Accounts in this organizational directory only` |
 | `Redirect URI` | `http://localhost:80` |
+| `Platform configuration` | `Single-page application` |
+
 Confirm the registration, and copy the `Application (client) ID` and the `Directory (tenant) ID`, we will need them later (or fill directly the `.env` file).
 
 ### 🔌 First launch of Jenkins
